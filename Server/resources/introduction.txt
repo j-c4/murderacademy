@@ -1,0 +1,66 @@
+/text
+It was a cold and gloomy morning. The smell of the rain hitting the pavement filled the air.
+/animation
+                             000      00
+                           0000000   0000
+              0      00  00000000000000000
+            0000 0  000000000000000000000000       0
+         000000000000000000000000000000000000000 000
+        0000000000000000000000000000000000000000000000
+    000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000
+              / / / / / / / / / / / / / / /
+            / / / / / / / / / / / / / / /
+            / / / / / / / / / / / / / / /
+          / / / / / / / / / / / / / /
+          / / / / / / / / / / / / / /
+        / / / / / / / / / / / / /
+        / / / / / / / / / / / / /
+/text
+As the loopeytunes walked towards <Academia_de_Codigo> they noticed that something was wrong. The gate was slightly open. The last code cadet was supposed
+to close the gate after leaving the night before. They opened the gate all the way so they could walk in and the smell of the air started to shift
+from rainy to horrid... When they opened the front door what they saw was as unbearable as the stench coming from the horrid murder scene.
+The code cadet that was supposed to close the gate had been killed.
+
+/animation
+                     ______
+                  .-"      "-.
+                 /            \
+                |              |
+                |,  .-.  .-.  ,|
+           /\   | )(__/  \__)( |
+         _ \/   |/     /\     \|
+        \_\/    (_     ^^     _)   .-==/~\
+       ___/_,__,_\__|IIIIII|__/__)/   /{~}}
+       ---,---,---|-\IIIIII/-|---,\'-' {{~}
+                  \          /     '-==\}/
+                   `--------`
+/text
+In the panic of it all, some loopeytunes stayed calm and they noticed that the Master Coders room had signs of tinkering. Going inside the Master Coders room was
+prohibited
+
+
+/animation
+            ______
+         .-'      `-.
+       .'            `.
+      /                \
+     ;                 ;`
+     |         H       |;
+     ;                 ;|
+     '\               / ;
+      \`.           .' /
+       `.`-._____.-' .'
+         / /`_____.-'
+        / / /
+       / / /
+      / / /
+     / / /
+    / / /
+   / / /
+  / / /
+ / / /
+/ / /
+\/_/
+
+
