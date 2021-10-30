@@ -1,7 +1,5 @@
 package org.academiadecodigo.loopeytunes.Server;
 
-import org.academiadecodigo.loopeytunes.Lock;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private static Server server;
     private ServerSocket serverSocket;
     private Socket playerSocket;
     private LinkedList<ClientConnection> clientConnections;
@@ -27,7 +24,6 @@ public class Server {
             serverSocket = new ServerSocket(9001);
             clientConnections = new LinkedList<>();
             threadPool = Executors.newFixedThreadPool(4);
-            game = new Game();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,7 +33,7 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        server = new Server();
+        Server server = new Server();
     }
 
     private void awaitingConnections() {
@@ -61,6 +57,8 @@ public class Server {
                 e.printStackTrace();
             }
         }
+
+        game = new Game();
 
         sendAll("Game is on!\n");
 
