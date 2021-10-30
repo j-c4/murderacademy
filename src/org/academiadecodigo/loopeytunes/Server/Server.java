@@ -72,7 +72,8 @@ public class Server {
     }
 
     private void next() {
-        if (counter > 3) {
+        if (counter == clientConnections.size()) {
+            sendAll(game.getHint());
             counter = 0;
         }
         clientConnections.get(counter).send("It's your turn to guess!");
@@ -80,6 +81,7 @@ public class Server {
     }
 
     private void win() {
+        sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
 
         for (int i=0; i<clientConnections.size(); i++) {

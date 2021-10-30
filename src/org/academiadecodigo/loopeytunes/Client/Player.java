@@ -3,7 +3,6 @@ package org.academiadecodigo.loopeytunes.Client;
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
-import org.academiadecodigo.loopeytunes.Lock;
 
 import java.io.*;
 import java.net.Socket;
@@ -88,7 +87,7 @@ public class Player {
         int choice2 = terminalPrompt.getUserInput(weapons);
         int choice3 = terminalPrompt.getUserInput(murderScenes);
 
-        String playerGuess = "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
+        String playerGuess = "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with a " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
         out.println(playerGuess);
         out.flush();
 
