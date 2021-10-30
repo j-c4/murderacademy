@@ -3,10 +3,12 @@ package org.academiadecodigo.loopeytunes.Client;
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
-import org.academiadecodigo.loopeytunes.Lock;
+import org.academiadecodigo.bootcamp.scanners.string.StringSetInputScanner;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Player {
 
@@ -44,6 +46,17 @@ public class Player {
 
     }
 
+    public void ready() {
+        Set<String> options = new HashSet<>();
+        options.add("yes");
+        options.add("no");
+        StringSetInputScanner question = new StringSetInputScanner(options);
+        question.setMessage("(yes/no): ");
+        String answer = terminalPrompt.getUserInput(question);
+        out.println(answer);
+        out.flush();
+    }
+
     public void playing() throws IOException {
 
         StringInputScanner askName = new StringInputScanner();
@@ -57,6 +70,10 @@ public class Player {
         while ((message = in.readLine()) != null) {
 
             System.out.println(message);
+
+            if (message.contains("Are you ready?")) {
+               ready();
+            }
 
             if (message.contains("It's your turn to guess!")) {
                 guess();

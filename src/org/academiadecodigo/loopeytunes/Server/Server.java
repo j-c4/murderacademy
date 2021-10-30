@@ -23,7 +23,7 @@ public class Server {
 
             serverSocket = new ServerSocket(9001);
             clientConnections = new LinkedList<>();
-            threadPool = Executors.newFixedThreadPool(4);
+            threadPool = Executors.newFixedThreadPool(30);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,7 +38,7 @@ public class Server {
 
     private void awaitingConnections() {
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < ; i++) {
 
             try {
 
@@ -51,6 +51,7 @@ public class Server {
                 clientConnections.add(newPlayer);
                 threadPool.submit(newPlayer);
                 System.out.println(newPlayer.name + " is connected");
+                sendAll(newPlayer.name + " is connected");
 
             } catch (IOException e) {
 
@@ -90,15 +91,25 @@ public class Server {
         awaitingConnections();
     }
 
+    private boolean allReady() {
+        for (int i=0; i<clientConnections.size(); i++) {
+            if (!clientConnections.get(i).isReady()) {
+                return false;
+            };
+        }
+        return true;
+    }
+
     private class ClientConnection implements Runnable {
 
         private BufferedReader in;
         private PrintWriter out;
         private Socket playerSocket;
         private final String name;
+        private boolean isReady;
 
         private ClientConnection(Socket playerSocket, String name) {
-
+            isReady = false;
             this.playerSocket = playerSocket;
             this.name = name;
 
@@ -106,6 +117,16 @@ public class Server {
 
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
                 out = new PrintWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+
+                while (!isReady) {
+                    send("Are you ready?");
+                    String answer = in.readLine();
+                    if (answer.contains("yes")) {
+                        isReady = true;
+                    }
+
+                }
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -148,10 +169,13 @@ public class Server {
             }
         }
 
-
         private void send(String message) {
             out.println(message);
             out.flush();
+        }
+
+        public boolean isReady() {
+            return isReady;
         }
     }
 }
