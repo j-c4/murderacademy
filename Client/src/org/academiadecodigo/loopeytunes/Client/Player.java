@@ -27,7 +27,8 @@ public class Player {
             terminalPrompt = new Prompt(System.in, System.out);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Unable to establish a connection to server.");
+            System.exit(0);
         }
     }
 
@@ -38,7 +39,8 @@ public class Player {
         try {
             player.playing();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server was abruptly shut down.");
+            System.exit(0);
         }
 
     }
@@ -87,7 +89,7 @@ public class Player {
         int choice2 = terminalPrompt.getUserInput(weapons);
         int choice3 = terminalPrompt.getUserInput(murderScenes);
 
-        String playerGuess = "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with a " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
+        String playerGuess = "--->" + "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with a " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
         out.println(playerGuess);
         out.flush();
 

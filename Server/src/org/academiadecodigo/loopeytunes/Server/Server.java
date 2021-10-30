@@ -13,7 +13,6 @@ public class Server {
     private LinkedList<ClientConnection> clientConnections;
     private ExecutorService threadPool;
     private BufferedReader in;
-    private PrintWriter out;
     private Game game;
     private int counter = 0;
 
@@ -45,7 +44,6 @@ public class Server {
                 playerSocket = serverSocket.accept();
 
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-                out = new PrintWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 
                 ClientConnection newPlayer = new ClientConnection(playerSocket, in.readLine());
                 clientConnections.add(newPlayer);
@@ -57,12 +55,42 @@ public class Server {
                 e.printStackTrace();
             }
         }
-
+        sendStory();
         game = new Game();
-
         sendAll("Game is on!\n");
 
         next();
+    }
+
+    private void sendStory() {
+        try {
+            File intro = new File("Server/resources/introduction.txt");
+
+            BufferedReader introReader = new BufferedReader(new FileReader(intro));
+            String line = "";
+
+            while ((line = introReader.readLine()) != null) {
+
+                if (line.equals("/animation")) {
+                    while (!(line = introReader.readLine()).equals("/text")) {
+                        sendAll(line);
+                    }
+                    Thread.sleep(2000);
+                    continue;
+                }
+                sendAll(line);
+                Thread.sleep(5000);
+            }
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void sendAll(String message) {
@@ -84,7 +112,7 @@ public class Server {
         sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
 
-        for (int i=0; i<clientConnections.size(); i++) {
+        for (int i = 0; i < clientConnections.size(); i++) {
             clientConnections.remove(clientConnections.get(i));
         }
 
@@ -110,7 +138,8 @@ public class Server {
                 out = new PrintWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Unable to establish a connection to client.");
+                System.exit(0);
             }
         }
 
