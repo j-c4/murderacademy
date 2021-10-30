@@ -3,48 +3,68 @@ package org.academiadecodigo.loopeytunes.Client;
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
+import org.academiadecodigo.loopeytunes.Lock;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 
 public class Player {
 
-    private Socket clientSocket;
+    private Socket playerSocket;
     private String name;
     private BufferedReader in;
-    private Prompt prompt;
-
-    public static void main(String[] args) {
-
-        /*
-        if (args.length != 2) {
-            System.exit(1);
-        }
-         */
-
-        Player player = new Player("127.0.0.1", 9001);
-
-        player.playing();
-
-    }
+    private PrintWriter out;
+    private Prompt terminalPrompt;
 
     public Player(String serverIP, int serverPort) {
 
         try {
-            clientSocket = new Socket(serverIP, serverPort);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            prompt = new Prompt(System.in, new PrintStream(clientSocket.getOutputStream()));
+
+            playerSocket = new Socket(serverIP, serverPort);
+
+            in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
+            out = new PrintWriter(playerSocket.getOutputStream());
+
+            terminalPrompt = new Prompt(System.in, System.out);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void guess(){
+    public static void main(String[] args) {
 
+        Player player = new Player("127.0.0.1", 9001);
+        player.playing();
+
+    }
+
+    public void playing() {
+
+        StringInputScanner askName = new StringInputScanner();
+        askName.setMessage("What is your name?");
+        name = terminalPrompt.getUserInput(askName);
+
+        out.println(name);
+        out.flush();
+
+        while (!playerSocket.isClosed()) {
+
+            try {
+                String message = in.readLine();
+                System.out.println(message);
+
+                if (message.contains("It's your turn to guess!")) {
+                    guess();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void guess() {
         String[] culpritOptions = {"SID", "PRIS", "VANDO", "PEDRO", "MIGUEL"};
         String[] weaponOptions = {"SKATE", "KEYBOARD", "PUFF", "FIRST MASTER CODER EXCALIBUR", "MEGAPHONE"};
         String[] murderSceneOptions = {"BATHROOM", "GAMINGROOM", "MCROOM", "CLASSROOM", "GRASS"};
@@ -57,29 +77,13 @@ public class Player {
         weapons.setMessage("What was the weapon used?");
         murderScenes.setMessage("Where did it happen?");
 
-        int choice1 = prompt.getUserInput(culprits);
-        int choice2 = prompt.getUserInput(weapons);
-        int choice3 = prompt.getUserInput(murderScenes);
+        int choice1 = terminalPrompt.getUserInput(culprits);
+        int choice2 = terminalPrompt.getUserInput(weapons);
+        int choice3 = terminalPrompt.getUserInput(murderScenes);
 
-    }
+        String playerGuess = "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
+        out.println(playerGuess);
+        out.flush();
 
-    public void playing() {
-
-        StringInputScanner getName = new StringInputScanner();
-        getName.setMessage("What is your name?");
-        name = prompt.getUserInput(getName);
-
-        while(!clientSocket.isClosed()) {
-
-            try {
-                String message = in.readLine();
-                if (message.contains("It is your turn")) {
-                    guess();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

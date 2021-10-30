@@ -1,7 +1,8 @@
 package org.academiadecodigo.loopeytunes.Server;
 
+import org.academiadecodigo.loopeytunes.Lock;
+
 import java.io.*;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -11,10 +12,29 @@ import java.util.concurrent.Executors;
 public class Server {
 
     private ServerSocket serverSocket;
-    private LinkedList<ClientConnection> list;
-    private ExecutorService threads;
+    private Socket playerSocket;
+    private LinkedList<ClientConnection> clientConnections;
+    private ExecutorService threadPool;
+    private BufferedReader in;
+    private PrintWriter out;
     private Game game;
-    private int counter;
+    private int counter = 0;
+
+    private Server() {
+
+        try {
+
+            serverSocket = new ServerSocket(9001);
+            clientConnections = new LinkedList<>();
+            threadPool = Executors.newFixedThreadPool(4);
+            game = new Game();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        awaitingConnections();
+    }
 
     public static void main(String[] args) {
 
@@ -22,72 +42,64 @@ public class Server {
 
     }
 
-    private Server() {
-
-        try {
-            serverSocket = new ServerSocket(9001);
-            list = new LinkedList<>();
-            threads = Executors.newFixedThreadPool(4);
-            game = new Game();
-            counter = 0;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        start();
-
-    }
-
-    private void start() {
+    private void awaitingConnections() {
 
         for (int i = 0; i < 4; i++) {
+
             try {
-                ClientConnection newPlayer = new ClientConnection(serverSocket.accept());
-                list.add(newPlayer);
-                threads.submit(newPlayer);
-                System.out.println(serverSocket.getInetAddress() + " is connected");
+
+                playerSocket = serverSocket.accept();
+
+                in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
+                out = new PrintWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+
+                ClientConnection newPlayer = new ClientConnection(playerSocket, in.readLine());
+                clientConnections.add(newPlayer);
+                threadPool.submit(newPlayer);
+                System.out.println(newPlayer.name + " is connected");
+
             } catch (IOException e) {
+
                 e.printStackTrace();
             }
         }
-        System.out.println("Game is on");
+
+        sendAll("Game is on!");
+
+        next();
+    }
+
+    private void sendAll(String message) {
+        for (ClientConnection cc : clientConnections) {
+            cc.send(message);
+        }
     }
 
     private void next() {
-        System.out.println("next");
-
-        if (counter == 8) {
-            counter =4;
+        if(counter > 3){
+            counter = 0;
         }
-
-        if (counter > 3) {
-            String message = "It is your turn\n";
-            list.get(counter-4).send(message);
-            counter++;
-            return;
-        }
-
+        clientConnections.get(counter).send("It's your turn to guess!");
         counter++;
-    }
-
-    public synchronized void sendAll(String message) {
-        for (ClientConnection client : list) {
-            client.send(message);
-        }
     }
 
     private class ClientConnection implements Runnable {
 
         private BufferedReader in;
-        private BufferedWriter out;
+        private PrintWriter out;
         private Socket playerSocket;
         private String name;
 
-        private ClientConnection(Socket playerSocket) {
+        private ClientConnection(Socket playerSocket, String name) {
+
             this.playerSocket = playerSocket;
+            this.name = name;
+
             try {
+
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-                out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+                out = new PrintWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -96,47 +108,27 @@ public class Server {
         @Override
         public void run() {
 
-            try {
-                name = in.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.println("hello");
-            next();
-
             while (!playerSocket.isClosed()) {
-                receive();
-                next();
+                try {
+
+                    String guess = in.readLine();
+
+                    sendAll(guess);
+
+                    sendAll(game.check(guess));
+
+                    next();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
+
 
         private void send(String message) {
-            try {
-                out.write(message);
-                out.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            out.println(message);
+            out.flush();
         }
-
-        private void receive() {
-            try {
-                String message1 = in.readLine();
-                String message2 = in.readLine();
-                String message3 = in.readLine();
-                String message = message1 + " " + message2 + " " + message3;
-
-                sendAll(name + ": " + message);
-
-                if (game.check(message)) {
-                    sendAll(name + " won the game!");
-                } else {
-                    sendAll(name + " failed! Next!");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 }
