@@ -73,7 +73,7 @@ public class Server {
     private void sendStory() {
         try {
 
-            BufferedReader introReader = new BufferedReader(new InputStreamReader(new FileInputStream("introduction.txt")));
+            BufferedReader introReader = new BufferedReader(new InputStreamReader(new FileInputStream("resources/introduction.txt")));
             String line = "";
 
             while ((line = introReader.readLine()) != null) {

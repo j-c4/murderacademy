@@ -8,6 +8,7 @@
         <property name="main.class" value="org.academiadecodigo.loopeytunes.Server.Server" />
         <property name="build.dir" value="build" />
         <property name="classes.dir" value="${build.dir}/classes" />
+        <property name="resources.dir" value="resources"/>
 
     </target>
 
