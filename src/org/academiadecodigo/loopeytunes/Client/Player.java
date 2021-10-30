@@ -35,11 +35,16 @@ public class Player {
     public static void main(String[] args) {
 
         Player player = new Player("127.0.0.1", 9001);
-        player.playing();
+
+        try {
+            player.playing();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
-    public void playing() {
+    public void playing() throws IOException {
 
         StringInputScanner askName = new StringInputScanner();
         askName.setMessage("What is your name?");
@@ -47,19 +52,21 @@ public class Player {
 
         out.println(name);
         out.flush();
+        String message = "";
 
-        while (!playerSocket.isClosed()) {
+        while ((message = in.readLine()) != null) {
 
-            try {
-                String message = in.readLine();
-                System.out.println(message);
+            System.out.println(message);
 
-                if (message.contains("It's your turn to guess!")) {
-                    guess();
-                }
+            if (message.contains("It's your turn to guess!")) {
+                guess();
+            }
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (message.contains("GAME IS OVER")) {
+                playerSocket.close();
+                in.close();
+                out.close();
+                System.exit(0);
             }
         }
     }

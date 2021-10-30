@@ -18,8 +18,8 @@ public class Game {
         System.out.println(culprit + " " + weapon + " " + murderScene);
     }
 
-    public String check(String answer) {
-        return (answer.contains(culprit) && answer.contains(weapon) && answer.contains(murderScene)) ?  "You win" : "Try Again";
+    public boolean check(String answer) {
+        return (answer.contains(culprit) && answer.contains(weapon) && answer.contains(murderScene));
     }
 
     private enum Culprit {

@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-
+    private static Server server;
     private ServerSocket serverSocket;
     private Socket playerSocket;
     private LinkedList<ClientConnection> clientConnections;
@@ -37,9 +37,7 @@ public class Server {
     }
 
     public static void main(String[] args) {
-
-        Server server = new Server();
-
+        server = new Server();
     }
 
     private void awaitingConnections() {
@@ -64,7 +62,7 @@ public class Server {
             }
         }
 
-        sendAll("Game is on!");
+        sendAll("Game is on!\n");
 
         next();
     }
@@ -76,11 +74,22 @@ public class Server {
     }
 
     private void next() {
-        if(counter > 3){
+        if (counter > 3) {
             counter = 0;
         }
         clientConnections.get(counter).send("It's your turn to guess!");
         counter++;
+    }
+
+    private void win() {
+        sendAll("GAME IS OVER\n");
+
+        for (int i=0; i<clientConnections.size(); i++) {
+            clientConnections.remove(clientConnections.get(i));
+        }
+
+        System.out.println("NEW GAME");
+        awaitingConnections();
     }
 
     private class ClientConnection implements Runnable {
@@ -88,7 +97,7 @@ public class Server {
         private BufferedReader in;
         private PrintWriter out;
         private Socket playerSocket;
-        private String name;
+        private final String name;
 
         private ClientConnection(Socket playerSocket, String name) {
 
@@ -105,23 +114,39 @@ public class Server {
             }
         }
 
+        public void close() {
+            try {
+                playerSocket.close();
+                in.close();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         @Override
         public void run() {
-
-            while (!playerSocket.isClosed()) {
-                try {
-
-                    String guess = in.readLine();
+            String guess;
+            try {
+                while ((guess = in.readLine()) != null) {
 
                     sendAll(guess);
 
-                    sendAll(game.check(guess));
+                    if (game.check(guess)) {
+                        sendAll("Detective " + name + " WINS THE GAME");
+                        win();
+                    } else {
+                        sendAll("Detective " + name + " failed! Next!\n");
+                    }
 
                     next();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+
+                close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
