@@ -3,7 +3,6 @@ package org.academiadecodigo.loopeytunes.Client;
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
-import org.academiadecodigo.loopeytunes.Lock;
 
 import java.io.*;
 import java.net.Socket;
