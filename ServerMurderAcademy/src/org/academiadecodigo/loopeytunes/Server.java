@@ -1,8 +1,9 @@
-package org.academiadecodigo.loopeytunes.Server;
+package org.academiadecodigo.loopeytunes;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,7 +14,6 @@ public class Server {
     private LinkedList<ClientConnection> clientConnections;
     private ExecutorService threadPool;
     private BufferedReader in;
-    private PrintWriter out;
     private Game game;
     private int counter = 0;
 
@@ -23,7 +23,7 @@ public class Server {
 
             serverSocket = new ServerSocket(9001);
             clientConnections = new LinkedList<>();
-            threadPool = Executors.newFixedThreadPool(30);
+            threadPool = Executors.newFixedThreadPool(4);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,32 +38,62 @@ public class Server {
 
     private void awaitingConnections() {
 
-        for (int i = 0; i < ; i++) {
+        for (int i = 0; i < 4; i++) {
 
             try {
 
                 playerSocket = serverSocket.accept();
 
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-                out = new PrintWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 
                 ClientConnection newPlayer = new ClientConnection(playerSocket, in.readLine());
                 clientConnections.add(newPlayer);
                 threadPool.submit(newPlayer);
                 System.out.println(newPlayer.name + " is connected");
-                sendAll(newPlayer.name + " is connected");
 
             } catch (IOException e) {
 
                 e.printStackTrace();
             }
         }
-
+        sendStory();
         game = new Game();
-
         sendAll("Game is on!\n");
 
         next();
+    }
+
+    public static Object readFile(URL url) throws IOException, ClassNotFoundException {
+        ObjectInputStream is = new ObjectInputStream(url.openStream());
+        Object o = is.readObject();
+        is.close();
+        return o;
+    }
+
+    private void sendStory() {
+        String[] text = IntroductionText.getText();
+        int delay = 4000;
+
+        for (int i=0; i < text.length; i++) {
+
+            try {
+                if (text[i].contains("/animation")) {
+                    delay = 150;
+                    continue;
+                }
+                if (text[i].contains("/text")) {
+                    delay = 4000;
+                    continue;
+                }
+                Thread.sleep(delay);
+                sendAll(text[i]);
+
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     private void sendAll(String message) {
@@ -73,7 +103,8 @@ public class Server {
     }
 
     private void next() {
-        if (counter > 3) {
+        if (counter == clientConnections.size()) {
+            sendAll(game.getHint());
             counter = 0;
         }
         clientConnections.get(counter).send("It's your turn to guess!");
@@ -81,23 +112,15 @@ public class Server {
     }
 
     private void win() {
+        sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
 
-        for (int i=0; i<clientConnections.size(); i++) {
+        for (int i = 0; i < clientConnections.size(); i++) {
             clientConnections.remove(clientConnections.get(i));
         }
 
         System.out.println("NEW GAME");
         awaitingConnections();
-    }
-
-    private boolean allReady() {
-        for (int i=0; i<clientConnections.size(); i++) {
-            if (!clientConnections.get(i).isReady()) {
-                return false;
-            };
-        }
-        return true;
     }
 
     private class ClientConnection implements Runnable {
@@ -106,10 +129,9 @@ public class Server {
         private PrintWriter out;
         private Socket playerSocket;
         private final String name;
-        private boolean isReady;
 
         private ClientConnection(Socket playerSocket, String name) {
-            isReady = false;
+
             this.playerSocket = playerSocket;
             this.name = name;
 
@@ -118,18 +140,9 @@ public class Server {
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
                 out = new PrintWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
 
-                while (!isReady) {
-                    send("Are you ready?");
-                    String answer = in.readLine();
-                    if (answer.contains("yes")) {
-                        isReady = true;
-                    }
-
-                }
-
-
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Unable to establish a connection to client.");
+                System.exit(0);
             }
         }
 
@@ -153,7 +166,7 @@ public class Server {
                     sendAll(guess);
 
                     if (game.check(guess)) {
-                        sendAll("Detective " + name + " WINS THE GAME");
+                        sendAll("Detective " + name + " WINS THE GAME\n");
                         win();
                     } else {
                         sendAll("Detective " + name + " failed! Next!\n");
@@ -169,13 +182,10 @@ public class Server {
             }
         }
 
+
         private void send(String message) {
             out.println(message);
             out.flush();
-        }
-
-        public boolean isReady() {
-            return isReady;
         }
     }
 }

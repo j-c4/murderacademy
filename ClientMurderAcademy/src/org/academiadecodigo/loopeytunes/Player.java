@@ -1,14 +1,14 @@
-package org.academiadecodigo.loopeytunes.Client;
+package org.academiadecodigo.loopeytunes;
 
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
-import org.academiadecodigo.bootcamp.scanners.string.StringSetInputScanner;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Player {
 
@@ -30,31 +30,27 @@ public class Player {
             terminalPrompt = new Prompt(System.in, System.out);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Unable to establish a connection to server.");
+            System.exit(0);
         }
     }
 
     public static void main(String[] args) {
 
-        Player player = new Player("127.0.0.1", 9001);
+        if (!(args.length==1)) {
+            System.out.println("YOU NEED TO PUT THE SERVER IP ADDRESS AS ARGUMENT WHEN YOU RUN THE JAR FILE\n");
+            return;
+        }
+
+        Player player = new Player(args[0], 9001);
 
         try {
             player.playing();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server was abruptly shut down.");
+            System.exit(0);
         }
 
-    }
-
-    public void ready() {
-        Set<String> options = new HashSet<>();
-        options.add("yes");
-        options.add("no");
-        StringSetInputScanner question = new StringSetInputScanner(options);
-        question.setMessage("(yes/no): ");
-        String answer = terminalPrompt.getUserInput(question);
-        out.println(answer);
-        out.flush();
     }
 
     public void playing() throws IOException {
@@ -70,10 +66,6 @@ public class Player {
         while ((message = in.readLine()) != null) {
 
             System.out.println(message);
-
-            if (message.contains("Are you ready?")) {
-               ready();
-            }
 
             if (message.contains("It's your turn to guess!")) {
                 guess();
@@ -105,7 +97,7 @@ public class Player {
         int choice2 = terminalPrompt.getUserInput(weapons);
         int choice3 = terminalPrompt.getUserInput(murderScenes);
 
-        String playerGuess = "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
+        String playerGuess = "--->" + "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with a " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
         out.println(playerGuess);
         out.flush();
 
