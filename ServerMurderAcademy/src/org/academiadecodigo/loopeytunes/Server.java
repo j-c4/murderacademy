@@ -17,6 +17,11 @@ public class Server {
     private Game game;
     private int counter = 0;
 
+    public static void main(String[] args) {
+        Server server = new Server();
+    }
+
+    //CONSTRUCTOR
     private Server() {
 
         try {
@@ -32,10 +37,7 @@ public class Server {
         awaitingConnections();
     }
 
-    public static void main(String[] args) {
-        Server server = new Server();
-    }
-
+    //WAITING FOR PLAYERS
     private void awaitingConnections() {
 
         for (int i = 0; i < 4; i++) {
@@ -63,13 +65,7 @@ public class Server {
         next();
     }
 
-    public static Object readFile(URL url) throws IOException, ClassNotFoundException {
-        ObjectInputStream is = new ObjectInputStream(url.openStream());
-        Object o = is.readObject();
-        is.close();
-        return o;
-    }
-
+    // SEND THE STORY
     private void sendStory() {
         String[] text = IntroductionText.getText();
         int delay = 4000;
@@ -96,12 +92,14 @@ public class Server {
         }
     }
 
+    // SEND MESSAGE FOR ALL PLAYERS
     private void sendAll(String message) {
         for (ClientConnection cc : clientConnections) {
             cc.send(message);
         }
     }
 
+    // TELL TO THE NEXT PLAYER TO PLAY
     private void next() {
         if (counter == clientConnections.size()) {
             sendAll(game.getHint());
@@ -111,6 +109,7 @@ public class Server {
         counter++;
     }
 
+    // WHEN SOMEONE WINS THE GAME FINISH THE GAME
     private void win() {
         sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
@@ -123,6 +122,7 @@ public class Server {
         awaitingConnections();
     }
 
+    // CLIENT CONNECTION CLASS
     private class ClientConnection implements Runnable {
 
         private BufferedReader in;
@@ -130,6 +130,7 @@ public class Server {
         private Socket playerSocket;
         private final String name;
 
+        // CONSTRUCTOR
         private ClientConnection(Socket playerSocket, String name) {
 
             this.playerSocket = playerSocket;
@@ -146,6 +147,7 @@ public class Server {
             }
         }
 
+        //CLOSE ALL THE STREAMS AND SOCKETS
         public void close() {
             try {
                 playerSocket.close();
@@ -182,7 +184,7 @@ public class Server {
             }
         }
 
-
+        // SEND MESSAGE FOR THE PLAYER CONNECT WITH THIS SOCKET
         private void send(String message) {
             out.println(message);
             out.flush();
