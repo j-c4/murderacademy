@@ -40,7 +40,7 @@ public class Player {
             player.playing();
         } catch (IOException e) {
             System.out.println("Server was abruptly shut down.");
-            System.exit(0);
+            System.exit(1);
         }
 
     }
