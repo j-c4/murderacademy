@@ -3,7 +3,6 @@ package org.academiadecodigo.loopeytunes;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,28 +15,29 @@ public class Server {
     private BufferedReader in;
     private Game game;
     private int counter = 0;
+    private final String LOCK = "lock";
 
-    public static void main(String[] args) {
-        Server server = new Server();
-    }
-
-    //CONSTRUCTOR
     private Server() {
 
         try {
 
             serverSocket = new ServerSocket(9001);
             clientConnections = new LinkedList<>();
-            threadPool = Executors.newFixedThreadPool(4);
+            threadPool = Executors.newFixedThreadPool(5);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Port already in use.");
+            System.exit(1);
         }
 
         awaitingConnections();
     }
 
     //WAITING FOR PLAYERS
+    public static void main(String[] args) {
+        Server server = new Server();
+    }
+
     private void awaitingConnections() {
 
         for (int i = 0; i < 4; i++) {
@@ -54,13 +54,14 @@ public class Server {
                 System.out.println(newPlayer.name + " is connected");
 
             } catch (IOException e) {
-
-                e.printStackTrace();
+                System.out.println("Connection lost.");
             }
         }
+
         sendStory();
         game = new Game();
         sendAll("Game is on!\n");
+        threadPool.submit(new UnblockingThread());
 
         next();
     }
@@ -70,7 +71,9 @@ public class Server {
         String[] text = IntroductionText.getText();
         int delay = 4000;
 
-        for (int i=0; i < text.length; i++) {
+        sendAll(text[0]);
+
+        for (int i=1; i < text.length; i++) {
 
             try {
                 if (text[i].contains("/animation")) {
@@ -86,7 +89,7 @@ public class Server {
 
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Thread interrupted.");
             }
 
         }
@@ -94,19 +97,23 @@ public class Server {
 
     // SEND MESSAGE FOR ALL PLAYERS
     private void sendAll(String message) {
-        for (ClientConnection cc : clientConnections) {
-            cc.send(message);
+        synchronized (LOCK) {
+            for (ClientConnection cc : clientConnections) {
+                cc.send(message);
+            }
         }
     }
 
     // TELL TO THE NEXT PLAYER TO PLAY
     private void next() {
-        if (counter == clientConnections.size()) {
-            sendAll(game.getHint());
-            counter = 0;
+        synchronized (LOCK) {
+            if (counter >= clientConnections.size()) {
+                sendAll(game.getHint());
+                counter = 0;
+            }
+            clientConnections.get(counter).send("It's your turn to guess!");
+            counter++;
         }
-        clientConnections.get(counter).send("It's your turn to guess!");
-        counter++;
     }
 
     // WHEN SOMEONE WINS THE GAME FINISH THE GAME
@@ -118,7 +125,7 @@ public class Server {
             clientConnections.remove(clientConnections.get(i));
         }
 
-        System.out.println("NEW GAME");
+        System.out.println("Waiting for players...");
         awaitingConnections();
     }
 
@@ -154,24 +161,25 @@ public class Server {
                 in.close();
                 out.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Connection lost");
             }
 
         }
 
         @Override
         public void run() {
+
             String guess;
             try {
                 while ((guess = in.readLine()) != null) {
 
                     sendAll(guess);
 
-                    if (game.check(guess)) {
+                    if (game.check(guess.toLowerCase())) {
                         sendAll("Detective " + name + " WINS THE GAME\n");
                         win();
                     } else {
-                        sendAll("Detective " + name + " failed! Next!\n");
+                        sendAll("Detective " + name + "'s capabilities are cold today! Next detective, help!\n");
                     }
 
                     next();
@@ -180,7 +188,7 @@ public class Server {
                 close();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Connection lost.");
             }
         }
 
@@ -188,6 +196,24 @@ public class Server {
         private void send(String message) {
             out.println(message);
             out.flush();
+        }
+    }
+
+    private class UnblockingThread implements Runnable {
+
+        @Override
+        public void run() {
+            while(true) {
+                synchronized (LOCK) {
+                    for (ClientConnection cc : clientConnections) {
+                        if (cc.playerSocket.isClosed()) {
+                            clientConnections.remove(cc);
+                            counter--;
+                            next();
+                        }
+                    }
+                }
+            }
         }
     }
 }
