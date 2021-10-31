@@ -3,7 +3,6 @@ package org.academiadecodigo.loopeytunes;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +32,7 @@ public class Server {
         awaitingConnections();
     }
 
+    //WAITING FOR PLAYERS
     public static void main(String[] args) {
         Server server = new Server();
     }
@@ -42,23 +42,21 @@ public class Server {
         for (int i = 0; i < 4; i++) {
 
             try {
-                String playerName;
-                ClientConnection newPlayer;
+
                 playerSocket = serverSocket.accept();
 
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-                if ((playerName = in.readLine()) != null){
-                    newPlayer = new ClientConnection(playerSocket, playerName);
-                    clientConnections.add(newPlayer);
-                    threadPool.submit(newPlayer);
-                    System.out.println(newPlayer.name + " is connected");
-                }
+
+                ClientConnection newPlayer = new ClientConnection(playerSocket, in.readLine());
+                clientConnections.add(newPlayer);
+                threadPool.submit(newPlayer);
+                System.out.println(newPlayer.name + " is connected");
 
             } catch (IOException e) {
                 System.out.println("Connection lost.");
             }
         }
-        //sendStory();
+        sendStory();
         game = new Game();
         sendAll("Game is on!\n");
         threadPool.submit(new UnblockingThread());
@@ -66,6 +64,7 @@ public class Server {
         next();
     }
 
+    // SEND THE STORY
     private void sendStory() {
         String[] text = IntroductionText.getText();
         int delay = 4000;
@@ -92,12 +91,14 @@ public class Server {
         }
     }
 
+    // SEND MESSAGE FOR ALL PLAYERS
     private void sendAll(String message) {
         for (ClientConnection cc : clientConnections) {
             cc.send(message);
         }
     }
 
+    // TELL TO THE NEXT PLAYER TO PLAY
     private void next() {
         if (counter >= clientConnections.size()) {
             sendAll(game.getHint());
@@ -107,6 +108,7 @@ public class Server {
         counter++;
     }
 
+    // WHEN SOMEONE WINS THE GAME FINISH THE GAME
     private void win() {
         sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
@@ -119,6 +121,7 @@ public class Server {
         awaitingConnections();
     }
 
+    // CLIENT CONNECTION CLASS
     private class ClientConnection implements Runnable {
 
         private BufferedReader in;
@@ -126,6 +129,7 @@ public class Server {
         private Socket playerSocket;
         private final String name;
 
+        // CONSTRUCTOR
         private ClientConnection(Socket playerSocket, String name) {
 
             this.playerSocket = playerSocket;
@@ -138,10 +142,11 @@ public class Server {
 
             } catch (IOException e) {
                 System.out.println("Unable to establish a connection to client.");
-
+                System.exit(0);
             }
         }
 
+        //CLOSE ALL THE STREAMS AND SOCKETS
         public void close() {
             try {
                 playerSocket.close();
@@ -179,6 +184,7 @@ public class Server {
             }
         }
 
+        // SEND MESSAGE FOR THE PLAYER CONNECT WITH THIS SOCKET
         private void send(String message) {
             out.println(message);
             out.flush();
