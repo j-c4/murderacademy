@@ -36,13 +36,13 @@ public class Player {
     }
 
     public static void main(String[] args) {
-
+/**
         if (!(args.length==1)) {
             System.out.println("YOU NEED TO PUT THE SERVER IP ADDRESS AS ARGUMENT WHEN YOU RUN THE JAR FILE\n");
             return;
         }
-
-        Player player = new Player(args[0], 9001);
+*/
+        Player player = new Player("127.0.0.1", 9001);
 
         try {
             player.playing();

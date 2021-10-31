@@ -16,6 +16,7 @@ public class Server {
     private BufferedReader in;
     private Game game;
     private int counter = 0;
+    private final String LOCK = "lock";
 
     private Server() {
 
@@ -23,7 +24,7 @@ public class Server {
 
             serverSocket = new ServerSocket(9001);
             clientConnections = new LinkedList<>();
-            threadPool = Executors.newFixedThreadPool(4);
+            threadPool = Executors.newFixedThreadPool(5);
 
         } catch (IOException e) {
             System.out.println("Port already in use.");
@@ -58,18 +59,13 @@ public class Server {
                 System.out.println("Connection lost.");
             }
         }
-        sendStory();
+        //sendStory();
+        threadPool.submit(new ConnectionChecker());
         game = new Game();
+        clientConnections.get(0).currentPlayer = true;
         sendAll("Game is on!\n");
 
         next();
-    }
-
-    public static Object readFile(URL url) throws IOException, ClassNotFoundException {
-        ObjectInputStream is = new ObjectInputStream(url.openStream());
-        Object o = is.readObject();
-        is.close();
-        return o;
     }
 
     private void sendStory() {
@@ -99,26 +95,37 @@ public class Server {
     }
 
     private void sendAll(String message) {
-        for (ClientConnection cc : clientConnections) {
-            cc.send(message);
+        synchronized (LOCK) {
+            for (ClientConnection cc : clientConnections) {
+                cc.send(message);
+            }
         }
     }
 
     private void next() {
-        if (counter == clientConnections.size()) {
-            sendAll(game.getHint());
-            counter = 0;
+        synchronized (LOCK) {
+            if (clientConnections.size() == 0) {
+                awaitingConnections();
+            }
+            clientConnections.get(counter).currentPlayer = false;
+            if (counter >= clientConnections.size()) {
+                sendAll(game.getHint());
+                counter = 0;
+            }
+            clientConnections.get(counter).send("It's your turn to guess!");
+            counter++;
+            clientConnections.get(counter - 1).currentPlayer = true;
         }
-        clientConnections.get(counter).send("It's your turn to guess!");
-        counter++;
     }
 
     private void win() {
         sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
 
-        for (int i = 0; i < clientConnections.size(); i++) {
-            clientConnections.remove(clientConnections.get(i));
+        synchronized (LOCK) {
+            for (int i = 0; i < clientConnections.size(); i++) {
+                clientConnections.remove(clientConnections.get(i));
+            }
         }
 
         System.out.println("NEW GAME");
@@ -131,6 +138,7 @@ public class Server {
         private PrintWriter out;
         private Socket playerSocket;
         private final String name;
+        private boolean currentPlayer;
 
         private ClientConnection(Socket playerSocket, String name) {
 
@@ -188,6 +196,28 @@ public class Server {
         private void send(String message) {
             out.println(message);
             out.flush();
+        }
+    }
+
+    private class ConnectionChecker implements Runnable{
+
+        @Override
+        public void run() {
+            while (true) {
+                synchronized (LOCK) {
+                    for (ClientConnection cc : clientConnections) {
+                        if (cc.playerSocket.isClosed() && cc.currentPlayer) {
+                            clientConnections.remove(cc);
+                            counter--;
+                            next();
+                            break;
+                        }
+                        if (cc.playerSocket.isClosed()) {
+                            clientConnections.remove(cc);
+                        }
+                    }
+                }
+            }
         }
     }
 }
