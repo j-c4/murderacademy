@@ -58,7 +58,7 @@ public class Server {
             }
         }
 
-        //sendStory();
+        sendStory();
         game = new Game();
         sendAll("Game is on!\n");
         threadPool.submit(new UnblockingThread());
