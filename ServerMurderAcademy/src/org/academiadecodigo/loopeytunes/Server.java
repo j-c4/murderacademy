@@ -23,7 +23,7 @@ public class Server {
 
             serverSocket = new ServerSocket(9001);
             clientConnections = new LinkedList<>();
-            threadPool = Executors.newFixedThreadPool(4);
+            threadPool = Executors.newFixedThreadPool(5);
 
         } catch (IOException e) {
             System.out.println("Port already in use.");
@@ -58,18 +58,12 @@ public class Server {
                 System.out.println("Connection lost.");
             }
         }
-        sendStory();
+        //sendStory();
         game = new Game();
         sendAll("Game is on!\n");
+        threadPool.submit(new UnblockingThread());
 
         next();
-    }
-
-    public static Object readFile(URL url) throws IOException, ClassNotFoundException {
-        ObjectInputStream is = new ObjectInputStream(url.openStream());
-        Object o = is.readObject();
-        is.close();
-        return o;
     }
 
     private void sendStory() {
@@ -105,7 +99,7 @@ public class Server {
     }
 
     private void next() {
-        if (counter == clientConnections.size()) {
+        if (counter >= clientConnections.size()) {
             sendAll(game.getHint());
             counter = 0;
         }
@@ -121,7 +115,7 @@ public class Server {
             clientConnections.remove(clientConnections.get(i));
         }
 
-        System.out.println("NEW GAME");
+        System.out.println("Waiting for players...");
         awaitingConnections();
     }
 
@@ -161,17 +155,18 @@ public class Server {
 
         @Override
         public void run() {
+
             String guess;
             try {
                 while ((guess = in.readLine()) != null) {
 
                     sendAll(guess);
 
-                    if (game.check(guess)) {
+                    if (game.check(guess.toLowerCase())) {
                         sendAll("Detective " + name + " WINS THE GAME\n");
                         win();
                     } else {
-                        sendAll("Detective " + name + " failed! Next!\n");
+                        sendAll("Detective " + name + "'s capabilities are cold today! Next detective, help!\n");
                     }
 
                     next();
@@ -184,10 +179,26 @@ public class Server {
             }
         }
 
-
         private void send(String message) {
             out.println(message);
             out.flush();
+        }
+    }
+
+    private class UnblockingThread implements Runnable {
+
+        @Override
+        public void run() {
+            while(true){
+
+                for(ClientConnection cc : clientConnections){
+                    if(cc.playerSocket.isClosed()){
+                        System.out.println(123);
+                        clientConnections.remove(cc);
+                        next();
+                    }
+                }
+            }
         }
     }
 }
