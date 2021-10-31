@@ -52,10 +52,10 @@ public class Game {
     //UTILITY CLASSES
     private enum Culprit {
         SID("Sid", new Hints[]{Hints.HINT_C1, Hints.HINT_C2, Hints.HINT_C3}, "he wasn't interacting enough."),
-        PRIS("Pris", new Hints[]{Hints.HINT_C1, Hints.HINT_C4, Hints.HINT_C5}, "he said that she needed to stop saying \"Certo?\"."),
-        VANDO("Vando", new Hints[]{Hints.HINT_C3, Hints.HINT_C4, Hints.HINT_C5}, "he broke his skateboard."),
-        PEDRO("Pedro", new Hints[]{Hints.HINT_C1, Hints.HINT_C2, Hints.HINT_C3, Hints.HINT_C5}, "he called him \"puto\"."),
-        MIGUEL("Miguel", new Hints[]{Hints.HINT_C2, Hints.HINT_C3, Hints.HINT_C4, Hints.HINT_C5}, "he forgot to invite him to the football match.");
+        PRIS("Pris", new Hints[]{Hints.HINT_C4, Hints.HINT_C6}, "he said that she needed to stop saying \"Certo?\"."),
+        VANDO("Vando", new Hints[]{Hints.HINT_C7, Hints.HINT_C4, Hints.HINT_C5}, "he broke his skateboard."),
+        PEDRO("Pedro", new Hints[]{Hints.HINT_C2, Hints.HINT_C3, Hints.HINT_C5}, "he called him \"puto\"."),
+        MIGUEL("Miguel", new Hints[]{Hints.HINT_C8, Hints.HINT_C4, Hints.HINT_C5}, "he forgot to invite him to the football match.");
 
         private String name;
         private Hints[] hints;
@@ -84,8 +84,8 @@ public class Game {
 
     private enum Weapon {
 
-        SKATEBOARD("skateboard", new Hints[]{Hints.HINT_W1, Hints.HINT_W3}),
-        KEYBOARD("keyboard", new Hints[]{Hints.HINT_W1, Hints.HINT_W2, Hints.HINT_W3}),
+        SKATEBOARD("skateboard", new Hints[]{Hints.HINT_W5, Hints.HINT_W6}),
+        KEYBOARD("keyboard", new Hints[]{Hints.HINT_W1, Hints.HINT_W2, Hints.HINT_W7}),
         PUFF("puff", new Hints[]{Hints.HINT_W4}),
         SWORD("First Master Coder EXCALIBUR", new Hints[]{Hints.HINT_W2}),
         MEGAPHONE("Megaphone", new Hints[]{Hints.HINT_W1, Hints.HINT_W2, Hints.HINT_W3});
@@ -136,18 +136,24 @@ public class Game {
     }
 
     private enum Hints {
-        HINT_C1("A long strand of hair was found on the ground.\n"),
-        HINT_C2("DNA tests revealed that the culprit might be a man.\n"),
+        HINT_C1("A long strand of light colored hair was found on the ground.\n"),
+        HINT_C2("DNA tests revealed that the culprit might be a tall man.\n"),
         HINT_C3("A beard hair was found on the ground.\n"),
         HINT_C4("The security guard saw an average height person leaving the campus.\n"),
         HINT_C5("The security guard saw someone leaving with an Apple laptop covered with stickers.\n"),
+        HINT_C6("A foto of a cat was found near the body!\n"),
+        HINT_C7("The victim was found grabing a t-shirt with an anime motif.\n"),
+        HINT_C8("A small baby's toy was found under the victim's body"),
         HINT_M1("The body's clothes smell really bad.\n"),
         HINT_M2("There was black paint on the victims fingernails.\n"),
         HINT_M3("The body was found grabbing a chair.\n"),
         HINT_W1("There were some mechanical components on the victim's body.\n"),
-        HINT_W2("The security guard saw someone leaving with a small backpack.\n"),
+        HINT_W2("The security guard saw someone leaving with a small backpack. Maybe the weapon is small...\n"),
         HINT_W3("The coders from the office next door heard a loud and unrecognizable noise.\n"),
-        HINT_W4("The body shows signs of asphyxiation.\n");
+        HINT_W4("The body shows signs of asphyxiation.\n"),
+        HINT_W5("There was wood chips on the victim's body.\n"),
+        HINT_W6("One item was missing the academy...something that kept cadets rolling...\n"),
+        HINT_W7("The marks on the body are resembling a net of small squares\n");
 
         private String message;
 
