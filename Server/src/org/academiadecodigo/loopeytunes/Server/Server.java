@@ -26,7 +26,8 @@ public class Server {
             threadPool = Executors.newFixedThreadPool(4);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Port already in use.");
+            System.exit(1);
         }
 
         awaitingConnections();
@@ -41,19 +42,20 @@ public class Server {
         for (int i = 0; i < 4; i++) {
 
             try {
-
+                String playerName;
+                ClientConnection newPlayer;
                 playerSocket = serverSocket.accept();
 
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-
-                ClientConnection newPlayer = new ClientConnection(playerSocket, in.readLine());
-                clientConnections.add(newPlayer);
-                threadPool.submit(newPlayer);
-                System.out.println(newPlayer.name + " is connected");
+                if ((playerName = in.readLine()) != null){
+                    newPlayer = new ClientConnection(playerSocket, playerName);
+                    clientConnections.add(newPlayer);
+                    threadPool.submit(newPlayer);
+                    System.out.println(newPlayer.name + " is connected");
+                }
 
             } catch (IOException e) {
-
-                e.printStackTrace();
+                System.out.println("Connection lost.");
             }
         }
         sendStory();
@@ -73,7 +75,7 @@ public class Server {
     private void sendStory() {
         try {
 
-            BufferedReader introReader = new BufferedReader(new InputStreamReader(new FileInputStream("resources/introduction.txt")));
+            BufferedReader introReader = new BufferedReader(new InputStreamReader(new FileInputStream("Server/resources/introduction.txt")));
             String line = "";
 
             while ((line = introReader.readLine()) != null) {
@@ -91,11 +93,11 @@ public class Server {
 
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("File not found.");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Connection lost.");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Thread interrupted.");
         }
 
     }
@@ -146,7 +148,7 @@ public class Server {
 
             } catch (IOException e) {
                 System.out.println("Unable to establish a connection to client.");
-                System.exit(0);
+
             }
         }
 
@@ -156,7 +158,7 @@ public class Server {
                 in.close();
                 out.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Connection lost");
             }
 
         }
@@ -182,7 +184,7 @@ public class Server {
                 close();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Connection lost.");
             }
         }
 
