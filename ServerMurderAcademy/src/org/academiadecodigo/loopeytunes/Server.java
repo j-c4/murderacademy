@@ -15,6 +15,7 @@ public class Server {
     private BufferedReader in;
     private Game game;
     private int counter = 0;
+    private final String LOCK = "lock";
 
     private Server() {
 
@@ -56,6 +57,7 @@ public class Server {
                 System.out.println("Connection lost.");
             }
         }
+
         sendStory();
         game = new Game();
         sendAll("Game is on!\n");
@@ -69,7 +71,9 @@ public class Server {
         String[] text = IntroductionText.getText();
         int delay = 4000;
 
-        for (int i=0; i < text.length; i++) {
+        sendAll(text[0]);
+
+        for (int i=1; i < text.length; i++) {
 
             try {
                 if (text[i].contains("/animation")) {
@@ -93,19 +97,23 @@ public class Server {
 
     // SEND MESSAGE FOR ALL PLAYERS
     private void sendAll(String message) {
-        for (ClientConnection cc : clientConnections) {
-            cc.send(message);
+        synchronized (LOCK) {
+            for (ClientConnection cc : clientConnections) {
+                cc.send(message);
+            }
         }
     }
 
     // TELL TO THE NEXT PLAYER TO PLAY
     private void next() {
-        if (counter >= clientConnections.size()) {
-            sendAll(game.getHint());
-            counter = 0;
+        synchronized (LOCK) {
+            if (counter >= clientConnections.size()) {
+                sendAll(game.getHint());
+                counter = 0;
+            }
+            clientConnections.get(counter).send("It's your turn to guess!");
+            counter++;
         }
-        clientConnections.get(counter).send("It's your turn to guess!");
-        counter++;
     }
 
     // WHEN SOMEONE WINS THE GAME FINISH THE GAME
@@ -195,13 +203,14 @@ public class Server {
 
         @Override
         public void run() {
-            while(true){
-
-                for(ClientConnection cc : clientConnections){
-                    if(cc.playerSocket.isClosed()){
-                        System.out.println(123);
-                        clientConnections.remove(cc);
-                        next();
+            while(true) {
+                synchronized (LOCK) {
+                    for (ClientConnection cc : clientConnections) {
+                        if (cc.playerSocket.isClosed()) {
+                            clientConnections.remove(cc);
+                            counter--;
+                            next();
+                        }
                     }
                 }
             }

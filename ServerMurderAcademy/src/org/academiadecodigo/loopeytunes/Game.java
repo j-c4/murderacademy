@@ -81,6 +81,7 @@ public class Game {
         }
 
     }
+
     private enum Weapon {
 
         SKATEBOARD("skateboard", new Hints[]{Hints.HINT_W1, Hints.HINT_W3}),
@@ -108,6 +109,7 @@ public class Game {
         }
 
     }
+
     private enum MurderScene {
 
         BATHROOM("bathroom", new Hints[]{Hints.HINT_M1}),
@@ -132,8 +134,9 @@ public class Game {
         }
 
     }
+
     private enum Hints {
-        HINT_C1("A long strain of hair was found on the ground.\n"),
+        HINT_C1("A long strand of hair was found on the ground.\n"),
         HINT_C2("DNA tests revealed that the culprit might be a man.\n"),
         HINT_C3("A beard hair was found on the ground.\n"),
         HINT_C4("The security guard saw an average height person leaving the campus.\n"),
