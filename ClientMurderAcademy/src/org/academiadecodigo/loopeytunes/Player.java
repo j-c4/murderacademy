@@ -3,7 +3,6 @@ package org.academiadecodigo.loopeytunes;
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,29 +10,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Player {
-
     private Socket playerSocket;
     private String name;
     private BufferedReader in;
     private PrintWriter out;
     private Prompt terminalPrompt;
-
-    public Player(String serverIP, int serverPort) {
-
-        try {
-
-            playerSocket = new Socket(serverIP, serverPort);
-
-            in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-            out = new PrintWriter(playerSocket.getOutputStream());
-
-            terminalPrompt = new Prompt(System.in, System.out);
-
-        } catch (IOException e) {
-            System.out.println("Unable to establish a connection to server.");
-            System.exit(0);
-        }
-    }
 
     public static void main(String[] args) {
 
@@ -53,6 +34,25 @@ public class Player {
 
     }
 
+    // CONSTRUCTOR
+    public Player(String serverIP, int serverPort) {
+
+        try {
+
+            playerSocket = new Socket(serverIP, serverPort);
+
+            in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
+            out = new PrintWriter(playerSocket.getOutputStream());
+
+            terminalPrompt = new Prompt(System.in, System.out);
+
+        } catch (IOException e) {
+            System.out.println("Unable to establish a connection to server.");
+            System.exit(0);
+        }
+    }
+
+    // WHILE THE GAME IS NOT FINISHED, PLAYER LISTENS AND TRIES TO GUESS
     public void playing() throws IOException {
 
         StringInputScanner askName = new StringInputScanner();
@@ -80,6 +80,7 @@ public class Player {
         }
     }
 
+    // WHEN IT IS THE PLAYER'S TURN HE TRIES TO GUESS
     public void guess() {
         String[] culpritOptions = {"SID", "PRIS", "VANDO", "PEDRO", "MIGUEL"};
         String[] weaponOptions = {"SKATE", "KEYBOARD", "PUFF", "FIRST MASTER CODER EXCALIBUR", "MEGAPHONE"};

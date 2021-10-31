@@ -11,10 +11,12 @@ public class Game {
     private List<Hints> hintList;
     private int counter = 0;
 
+    //CONSTRUCTOR
     public Game() {
         start();
     }
 
+    //INIT PROPERTIES
     public void start() {
 
         culprit = Culprit.values()[(int) Math.floor(Math.random() * 5)];
@@ -42,10 +44,12 @@ public class Game {
         return culprit.getMotive();
     }
 
+    // SEE IF THE GUESS OF THE PLAYER IS RIGHT
     public boolean check(String answer) {
         return (answer.contains(culprit.getName()) && answer.contains(weapon.getWeapon()) && answer.contains(murderScene.getMurderScene()));
     }
 
+    //UTILITY CLASSES
     private enum Culprit {
         SID("SID", new Hints[]{Hints.HINT_C1, Hints.HINT_C2, Hints.HINT_C3}, "he wasn't interacting enough."),
         PRIS("PRIS", new Hints[]{Hints.HINT_C1, Hints.HINT_C4, Hints.HINT_C5}, "he said that she needed to stop saying \"right\"."),
@@ -77,7 +81,6 @@ public class Game {
         }
 
     }
-
     private enum Weapon {
 
         SKATEBOARD("SKATEBOARD", new Hints[]{Hints.HINT_W1, Hints.HINT_W3}),
@@ -105,7 +108,6 @@ public class Game {
         }
 
     }
-
     private enum MurderScene {
 
         BATHROOM("BATHROOM", new Hints[]{Hints.HINT_M1}),
@@ -133,7 +135,6 @@ public class Game {
             return this.hints;
         }
     }
-
     private enum Hints {
         HINT_C1("A long string of hair was found on the ground."),
         HINT_C2("DNA tests revealed that the culprit might be a man."),
