@@ -17,6 +17,11 @@ public class Server {
     private Game game;
     private int counter = 0;
 
+    public static void main(String[] args) {
+        Server server = new Server();
+    }
+
+    //CONSTRUCTOR
     private Server() {
 
         try {
@@ -26,36 +31,31 @@ public class Server {
             threadPool = Executors.newFixedThreadPool(4);
 
         } catch (IOException e) {
-            System.out.println("Port already in use.");
-            System.exit(1);
+            e.printStackTrace();
         }
 
         awaitingConnections();
     }
 
-    public static void main(String[] args) {
-        Server server = new Server();
-    }
-
+    //WAITING FOR PLAYERS
     private void awaitingConnections() {
 
         for (int i = 0; i < 4; i++) {
 
             try {
-                String playerName;
-                ClientConnection newPlayer;
+
                 playerSocket = serverSocket.accept();
 
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-                if ((playerName = in.readLine()) != null){
-                    newPlayer = new ClientConnection(playerSocket, playerName);
-                    clientConnections.add(newPlayer);
-                    threadPool.submit(newPlayer);
-                    System.out.println(newPlayer.name + " is connected");
-                }
+
+                ClientConnection newPlayer = new ClientConnection(playerSocket, in.readLine());
+                clientConnections.add(newPlayer);
+                threadPool.submit(newPlayer);
+                System.out.println(newPlayer.name + " is connected");
 
             } catch (IOException e) {
-                System.out.println("Connection lost.");
+
+                e.printStackTrace();
             }
         }
         sendStory();
@@ -65,13 +65,7 @@ public class Server {
         next();
     }
 
-    public static Object readFile(URL url) throws IOException, ClassNotFoundException {
-        ObjectInputStream is = new ObjectInputStream(url.openStream());
-        Object o = is.readObject();
-        is.close();
-        return o;
-    }
-
+    // SEND THE STORY
     private void sendStory() {
         String[] text = IntroductionText.getText();
         int delay = 4000;
@@ -92,18 +86,20 @@ public class Server {
 
 
             } catch (InterruptedException e) {
-                System.out.println("Thread interrupted.");
+                e.printStackTrace();
             }
 
         }
     }
 
+    // SEND MESSAGE FOR ALL PLAYERS
     private void sendAll(String message) {
         for (ClientConnection cc : clientConnections) {
             cc.send(message);
         }
     }
 
+    // TELL TO THE NEXT PLAYER TO PLAY
     private void next() {
         if (counter == clientConnections.size()) {
             sendAll(game.getHint());
@@ -113,6 +109,7 @@ public class Server {
         counter++;
     }
 
+    // WHEN SOMEONE WINS THE GAME FINISH THE GAME
     private void win() {
         sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
@@ -125,6 +122,7 @@ public class Server {
         awaitingConnections();
     }
 
+    // CLIENT CONNECTION CLASS
     private class ClientConnection implements Runnable {
 
         private BufferedReader in;
@@ -132,6 +130,7 @@ public class Server {
         private Socket playerSocket;
         private final String name;
 
+        // CONSTRUCTOR
         private ClientConnection(Socket playerSocket, String name) {
 
             this.playerSocket = playerSocket;
@@ -144,17 +143,18 @@ public class Server {
 
             } catch (IOException e) {
                 System.out.println("Unable to establish a connection to client.");
-
+                System.exit(0);
             }
         }
 
+        //CLOSE ALL THE STREAMS AND SOCKETS
         public void close() {
             try {
                 playerSocket.close();
                 in.close();
                 out.close();
             } catch (IOException e) {
-                System.out.println("Connection lost");
+                e.printStackTrace();
             }
 
         }
@@ -180,11 +180,11 @@ public class Server {
                 close();
 
             } catch (IOException e) {
-                System.out.println("Connection lost.");
+                e.printStackTrace();
             }
         }
 
-
+        // SEND MESSAGE FOR THE PLAYER CONNECT WITH THIS SOCKET
         private void send(String message) {
             out.println(message);
             out.flush();
