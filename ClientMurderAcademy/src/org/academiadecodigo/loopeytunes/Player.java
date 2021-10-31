@@ -3,6 +3,7 @@ package org.academiadecodigo.loopeytunes;
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,7 +19,7 @@ public class Player {
 
     public static void main(String[] args) {
 
-        if (!(args.length==1)) {
+        if (args.length != 1) {
             System.out.println("YOU NEED TO PUT THE SERVER IP ADDRESS AS ARGUMENT WHEN YOU RUN THE JAR FILE\n");
             return;
         }
