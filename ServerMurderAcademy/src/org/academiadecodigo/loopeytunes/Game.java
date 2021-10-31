@@ -9,7 +9,7 @@ public class Game {
     private Weapon weapon;
     private MurderScene murderScene;
     private List<Hints> hintList;
-    private int counter = 0;
+    private int counter;
 
     //CONSTRUCTOR
     public Game() {
@@ -32,12 +32,19 @@ public class Game {
     }
 
     public String getHint() {
-        if (counter == hintList.size()) {
-            counter = 0;
+
+        counter = Random.getRandom(0, hintList.size());
+        Hints hint = hintList.get(counter);
+        String hintText = hintList.get(counter).message;
+
+        while (hint.used) {
+            counter = Random.getRandom();
+            hint = hintList.get(counter);
+            hintText = hintList.get(counter).message;
         }
-        String hint = hintList.get(counter).getMessage();
-        counter++;
-        return hint;
+
+        hint.used = true;
+        return hintText;
     }
 
     public String getConfession() {
@@ -156,21 +163,22 @@ public class Game {
         HINT_W7("The marks on the body are resembling a net of small squares\n");
 
         private String message;
+        private boolean used;
 
         Hints(String message) {
             this.message = message;
+            this.used = false;
         }
-
-        private String getMessage() {
-            return message;
-        }
-
     }
 
     private final static class Random {
 
-        public static int getRandom(){
-            return (int) Math.floor(Math.random()*5);
+        public static int getRandom() {
+            return (int) Math.floor(Math.random() * 5);
+        }
+
+        public static int getRandom(int max, int min) {
+            return (int) Math.floor(Math.random() * (max - min) + min);
         }
     }
 
