@@ -18,7 +18,7 @@ public class Player {
 
     public static void main(String[] args) {
 
-        if (!(args.length==1)) {
+        if (!(args.length>1)) {
             System.out.println("YOU NEED TO PUT THE SERVER IP ADDRESS AS ARGUMENT WHEN YOU RUN THE JAR FILE\n");
             return;
         }
