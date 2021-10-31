@@ -62,7 +62,7 @@ public class IntroductionText {
             "So they waited...and waited...\n" +
             "They became suspicious!\n" +
             "The Master Coders arrived together shortly after.\n" +
-            "The suspicions fell on top of them and everybody began to wonder who on Earth would do such evil thing.\n" +
+            "The suspicions fell on top of them and everybody began to wonder who on Earth would do such an evil thing.\n" +
             "Who did it and why? How did it happen? And where?\n" +
             "Mr. Detective, would you care to help Loopeytunes finding out what happened to their fellow code cadet?\n" +
             "Let the investigation begin!\n" +

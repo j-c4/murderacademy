@@ -9,7 +9,7 @@ public class Game {
     private Weapon weapon;
     private MurderScene murderScene;
     private List<Hints> hintList;
-    private int counter;
+    private int counter = 0;
 
     //CONSTRUCTOR
     public Game() {
@@ -33,19 +33,15 @@ public class Game {
 
     public String getHint() {
 
-        counter = Random.getRandom(0, hintList.size());
-        Hints hint = hintList.get(counter);
-        String hintText = hintList.get(counter).message;
-
-        while (hint.used) {
-            counter = Random.getRandom();
-            hint = hintList.get(counter);
-            hintText = hintList.get(counter).message;
+        if(counter >= hintList.size()){
+            return "Couldn't find any more clues on the crime scene.";
         }
 
-        hint.used = true;
-        return hintText;
+        String message = hintList.get(counter).message;
+        counter++;
+        return message;
     }
+
 
     public String getConfession() {
         return culprit.getMotive();
@@ -58,11 +54,11 @@ public class Game {
 
     //UTILITY CLASSES
     private enum Culprit {
-        SID("Sid", new Hints[]{Hints.HINT_C1, Hints.HINT_C2, Hints.HINT_C3}, "he wasn't interacting enough."),
+        SID("Sid", new Hints[]{Hints.HINT_C2, Hints.HINT_C3, Hints.HINT_C1}, "he wasn't interacting enough."),
         PRIS("Pris", new Hints[]{Hints.HINT_C4, Hints.HINT_C6}, "he said that she needed to stop saying \"Certo?\"."),
-        VANDO("Vando", new Hints[]{Hints.HINT_C7, Hints.HINT_C4, Hints.HINT_C5}, "he broke his skateboard."),
-        PEDRO("Pedro", new Hints[]{Hints.HINT_C2, Hints.HINT_C3, Hints.HINT_C5}, "he called him \"puto\"."),
-        MIGUEL("Miguel", new Hints[]{Hints.HINT_C8, Hints.HINT_C4, Hints.HINT_C5}, "he forgot to invite him to the football match.");
+        VANDO("Vando", new Hints[]{Hints.HINT_C5, Hints.HINT_C4, Hints.HINT_C7}, "he broke his skateboard."),
+        PEDRO("Pedro", new Hints[]{Hints.HINT_C5, Hints.HINT_C2, Hints.HINT_C3}, "he called him \"puto\"."),
+        MIGUEL("Miguel", new Hints[]{ Hints.HINT_C5, Hints.HINT_C4, Hints.HINT_C8}, "he forgot to invite him to the football match.");
 
         private String name;
         private Hints[] hints;
@@ -148,8 +144,8 @@ public class Game {
         HINT_C3("A beard hair was found on the ground.\n"),
         HINT_C4("The security guard saw an average height person leaving the campus.\n"),
         HINT_C5("The security guard saw someone leaving with an Apple laptop covered with stickers.\n"),
-        HINT_C6("A foto of a cat was found near the body!\n"),
-        HINT_C7("The victim was found grabing a t-shirt with an anime motif.\n"),
+        HINT_C6("A photo of a cat was found near the body!\n"),
+        HINT_C7("The victim was found grabbing a t-shirt with an anime motif.\n"),
         HINT_C8("A small baby's toy was found under the victim's body"),
         HINT_M1("The body's clothes smell really bad.\n"),
         HINT_M2("There was black paint on the victims fingernails.\n"),
@@ -159,15 +155,13 @@ public class Game {
         HINT_W3("The coders from the office next door heard a loud and unrecognizable noise.\n"),
         HINT_W4("The body shows signs of asphyxiation.\n"),
         HINT_W5("There was wood chips on the victim's body.\n"),
-        HINT_W6("One item was missing the academy...something that kept cadets rolling...\n"),
+        HINT_W6("One item was missing at the academy...something that kept cadets rolling...\n"),
         HINT_W7("The marks on the body are resembling a net of small squares\n");
 
         private String message;
-        private boolean used;
 
         Hints(String message) {
             this.message = message;
-            this.used = false;
         }
     }
 
@@ -177,8 +171,8 @@ public class Game {
             return (int) Math.floor(Math.random() * 5);
         }
 
-        public static int getRandom(int max, int min) {
-            return (int) Math.floor(Math.random() * (max - min) + min);
+        public static int getRandom(int n) {
+            return (int) Math.floor(Math.random() * n);
         }
     }
 
