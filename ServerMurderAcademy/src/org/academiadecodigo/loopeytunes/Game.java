@@ -9,7 +9,7 @@ public class Game {
     private Weapon weapon;
     private MurderScene murderScene;
     private List<Hints> hintList;
-    private int counter = 0;
+    private int counter;
 
     //CONSTRUCTOR
     public Game() {
@@ -32,12 +32,19 @@ public class Game {
     }
 
     public String getHint() {
-        if (counter == hintList.size()) {
-            counter = 0;
+
+        counter = Random.getRandom(0, hintList.size());
+        Hints hint = hintList.get(counter);
+        String hintText = hintList.get(counter).message;
+
+        while (hint.used) {
+            counter = Random.getRandom();
+            hint = hintList.get(counter);
+            hintText = hintList.get(counter).message;
         }
-        String hint = hintList.get(counter).getMessage();
-        counter++;
-        return hint;
+
+        hint.used = true;
+        return hintText;
     }
 
     public String getConfession() {
@@ -53,7 +60,7 @@ public class Game {
     private enum Culprit {
         SID("Sid", new Hints[]{Hints.HINT_C1, Hints.HINT_C2, Hints.HINT_C3}, "he wasn't interacting enough."),
         PRIS("Pris", new Hints[]{Hints.HINT_C1, Hints.HINT_C4, Hints.HINT_C5}, "he said that she needed to stop saying \"Certo?\"."),
-        VANDO("Vando", new Hints[]{Hints.HINT_C3, Hints.HINT_C4, Hints.HINT_C5}, "he broke his skateboard."),
+        VANDO("Vando", new Hints[]{Hints.HINT_C2, Hints.HINT_C4, Hints.HINT_C5}, "he broke his skateboard."),
         PEDRO("Pedro", new Hints[]{Hints.HINT_C1, Hints.HINT_C2, Hints.HINT_C3, Hints.HINT_C5}, "he called him \"puto\"."),
         MIGUEL("Miguel", new Hints[]{Hints.HINT_C2, Hints.HINT_C3, Hints.HINT_C4, Hints.HINT_C5}, "he forgot to invite him to the football match.");
 
@@ -136,11 +143,12 @@ public class Game {
     }
 
     private enum Hints {
-        HINT_C1("A long strand of hair was found on the ground.\n"),
-        HINT_C2("DNA tests revealed that the culprit might be a man.\n"),
-        HINT_C3("A beard hair was found on the ground.\n"),
-        HINT_C4("The security guard saw an average height person leaving the campus.\n"),
-        HINT_C5("The security guard saw someone leaving with an Apple laptop covered with stickers.\n"),
+
+        HINT_C1("Hint: A long strand of hair was found on the ground.\n"),
+        HINT_C2("Hint: DNA tests revealed that the culprit might be a man.\n"),
+        HINT_C3("Hint: A beard hair was found on the ground.\n"),
+        HINT_C4("Hint: The security guard saw an average height person leaving the campus.\n"),
+        HINT_C5("Hint: The security guard saw someone leaving with an Apple laptop covered with stickers.\n"),
         HINT_M1("The body's clothes smell really bad.\n"),
         HINT_M2("There was black paint on the victims fingernails.\n"),
         HINT_M3("The body was found grabbing a chair.\n"),
@@ -150,21 +158,22 @@ public class Game {
         HINT_W4("The body shows signs of asphyxiation.\n");
 
         private String message;
+        private boolean used;
 
         Hints(String message) {
             this.message = message;
+            this.used = false;
         }
-
-        private String getMessage() {
-            return message;
-        }
-
     }
 
     private final static class Random {
 
-        public static int getRandom(){
-            return (int) Math.floor(Math.random()*5);
+        public static int getRandom() {
+            return (int) Math.floor(Math.random() * 5);
+        }
+
+        public static int getRandom(int max, int min) {
+            return (int) Math.floor(Math.random() * (max - min) + min);
         }
     }
 

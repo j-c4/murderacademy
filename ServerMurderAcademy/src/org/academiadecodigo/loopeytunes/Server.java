@@ -58,7 +58,7 @@ public class Server {
             }
         }
 
-        sendStory();
+        //sendStory();
         game = new Game();
         sendAll("Game is on!\n");
         threadPool.submit(new UnblockingThread());
@@ -73,7 +73,7 @@ public class Server {
 
         sendAll(text[0]);
 
-        for (int i=1; i < text.length; i++) {
+        for (int i = 1; i < text.length; i++) {
 
             try {
                 if (text[i].contains("/animation")) {
@@ -203,7 +203,7 @@ public class Server {
 
         @Override
         public void run() {
-            while(true) {
+            while (true) {
                 synchronized (LOCK) {
                     for (ClientConnection cc : clientConnections) {
                         if (cc.playerSocket.isClosed()) {
