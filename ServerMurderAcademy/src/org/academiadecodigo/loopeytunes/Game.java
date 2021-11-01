@@ -8,7 +8,7 @@ public class Game {
     private Culprit culprit;
     private Weapon weapon;
     private MurderScene murderScene;
-    private List<Hints> hintList;
+    private ArrayList<Hints> hintList;
     private int counter = 0;
 
     //CONSTRUCTOR
@@ -33,15 +33,15 @@ public class Game {
 
     public String getHint() {
 
-        if(counter >= hintList.size()){
-            return "Couldn't find any more clues on the crime scene.";
+        if(hintList.size() <= 0){
+            return "Couldn't find anymore clues on the crime scene";
         }
 
-        String message = hintList.get(counter).message;
-        counter++;
-        return message;
-    }
+        counter = Random.getRandom(hintList.size());
+        Hints hint = hintList.remove(counter);
 
+        return hint.message;
+    }
 
     public String getConfession() {
         return culprit.getMotive();
@@ -139,24 +139,24 @@ public class Game {
     }
 
     private enum Hints {
-        HINT_C1("A long strand of light colored hair was found on the ground.\n"),
-        HINT_C2("DNA tests revealed that the culprit might be a tall man.\n"),
-        HINT_C3("A beard hair was found on the ground.\n"),
-        HINT_C4("The security guard saw an average height person leaving the campus.\n"),
-        HINT_C5("The security guard saw someone leaving with an Apple laptop covered with stickers.\n"),
-        HINT_C6("A photo of a cat was found near the body!\n"),
-        HINT_C7("The victim was found grabbing a t-shirt with an anime motif.\n"),
-        HINT_C8("A small baby's toy was found under the victim's body"),
-        HINT_M1("The body's clothes smell really bad.\n"),
-        HINT_M2("There was black paint on the victims fingernails.\n"),
-        HINT_M3("The body was found grabbing a chair.\n"),
-        HINT_W1("There were some mechanical components on the victim's body.\n"),
-        HINT_W2("The security guard saw someone leaving with a small backpack. Maybe the weapon is small...\n"),
-        HINT_W3("The coders from the office next door heard a loud and unrecognizable noise.\n"),
-        HINT_W4("The body shows signs of asphyxiation.\n"),
-        HINT_W5("There was wood chips on the victim's body.\n"),
-        HINT_W6("One item was missing at the academy...something that kept cadets rolling...\n"),
-        HINT_W7("The marks on the body are resembling a net of small squares\n");
+        HINT_C1("Clue: A long strand of light colored hair was found on the ground.\n"),
+        HINT_C2("Clue: DNA tests revealed that the culprit might be a tall man.\n"),
+        HINT_C3("Clue: A beard hair was found on the ground.\n"),
+        HINT_C4("Clue: The security guard saw an average height person leaving the campus.\n"),
+        HINT_C5("Clue: The security guard saw someone leaving with an Apple laptop covered with stickers.\n"),
+        HINT_C6("Clue: A photo of a cat was found near the body!\n"),
+        HINT_C7("Clue: The victim was found grabbing a t-shirt with an anime motif.\n"),
+        HINT_C8("Clue: A small baby's toy was found under the victim's body"),
+        HINT_M1("Clue: The body's clothes smell really bad.\n"),
+        HINT_M2("Clue: There was black paint on the victims fingernails.\n"),
+        HINT_M3("Clue: The body was found grabbing a chair.\n"),
+        HINT_W1("Clue: There were some mechanical components on the victim's body.\n"),
+        HINT_W2("Clue: The security guard saw someone leaving with a small backpack. Maybe the weapon is small...\n"),
+        HINT_W3("Clue: The coders from the office next door heard a loud and unrecognizable noise.\n"),
+        HINT_W4("Clue: The body shows signs of asphyxiation.\n"),
+        HINT_W5("Clue: There was wood chips on the victim's body.\n"),
+        HINT_W6("Clue: One item was missing at the academy...something that kept cadets rolling...\n"),
+        HINT_W7("Clue: The marks on the body are resembling a net of small squares\n");
 
         private String message;
 
