@@ -107,14 +107,14 @@ public class Server {
             if (clientConnections.size() == 0) {
                 awaitingConnections();
             }
-            clientConnections.get(counter).currentPlayer = false;
             if (counter >= clientConnections.size()) {
                 sendAll(game.getHint());
                 counter = 0;
             }
             clientConnections.get(counter).send("It's your turn to guess!");
+            clientConnections.get(counter).currentPlayer = false;
             counter++;
-            clientConnections.get(counter - 1).currentPlayer = true;
+            clientConnections.get(counter).currentPlayer = true;
         }
     }
 
@@ -208,9 +208,9 @@ public class Server {
                     for (ClientConnection cc : clientConnections) {
                         if (cc.playerSocket.isClosed() && cc.currentPlayer) {
                             clientConnections.remove(cc);
-                            counter--;
                             next();
-                            break;
+                            counter--;
+                            continue;
                         }
                         if (cc.playerSocket.isClosed()) {
                             clientConnections.remove(cc);
