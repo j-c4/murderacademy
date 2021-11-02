@@ -3,7 +3,6 @@ package org.academiadecodigo.loopeytunes;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,6 +33,7 @@ public class Server {
         awaitingConnections();
     }
 
+    //WAITING FOR PLAYERS
     public static void main(String[] args) {
         Server server = new Server();
     }
@@ -43,36 +43,37 @@ public class Server {
         for (int i = 0; i < 4; i++) {
 
             try {
-                String playerName;
-                ClientConnection newPlayer;
+
                 playerSocket = serverSocket.accept();
 
                 in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-                if ((playerName = in.readLine()) != null){
-                    newPlayer = new ClientConnection(playerSocket, playerName);
-                    clientConnections.add(newPlayer);
-                    threadPool.submit(newPlayer);
-                    System.out.println(newPlayer.name + " is connected");
-                }
+
+                ClientConnection newPlayer = new ClientConnection(playerSocket, in.readLine());
+                clientConnections.add(newPlayer);
+                threadPool.submit(newPlayer);
+                System.out.println(newPlayer.name + " is connected");
 
             } catch (IOException e) {
                 System.out.println("Connection lost.");
             }
         }
-        //sendStory();
-        threadPool.submit(new ConnectionChecker());
+
+        sendStory();
         game = new Game();
-        clientConnections.get(0).currentPlayer = true;
         sendAll("Game is on!\n");
+        threadPool.submit(new UnblockingThread());
 
         next();
     }
 
+    // SEND THE STORY
     private void sendStory() {
         String[] text = IntroductionText.getText();
         int delay = 4000;
 
-        for (int i=0; i < text.length; i++) {
+        sendAll(text[0]);
+
+        for (int i = 1; i < text.length; i++) {
 
             try {
                 if (text[i].contains("/animation")) {
@@ -94,6 +95,7 @@ public class Server {
         }
     }
 
+    // SEND MESSAGE FOR ALL PLAYERS
     private void sendAll(String message) {
         synchronized (LOCK) {
             for (ClientConnection cc : clientConnections) {
@@ -102,44 +104,40 @@ public class Server {
         }
     }
 
+    // TELL TO THE NEXT PLAYER TO PLAY
     private void next() {
         synchronized (LOCK) {
-            if (clientConnections.size() == 0) {
-                awaitingConnections();
-            }
             if (counter >= clientConnections.size()) {
                 sendAll(game.getHint());
                 counter = 0;
             }
             clientConnections.get(counter).send("It's your turn to guess!");
-            clientConnections.get(counter).currentPlayer = false;
             counter++;
-            clientConnections.get(counter).currentPlayer = true;
         }
     }
 
+    // WHEN SOMEONE WINS THE GAME FINISH THE GAME
     private void win() {
         sendAll(game.getConfession());
         sendAll("GAME IS OVER\n");
 
-        synchronized (LOCK) {
-            for (int i = 0; i < clientConnections.size(); i++) {
-                clientConnections.remove(clientConnections.get(i));
-            }
+        for (int i = 0; i < clientConnections.size(); i++) {
+            clientConnections.remove(clientConnections.get(i));
         }
 
-        System.out.println("NEW GAME");
+        System.out.println("Waiting for players...");
         awaitingConnections();
     }
 
+    // CLIENT CONNECTION CLASS
     private class ClientConnection implements Runnable {
 
         private BufferedReader in;
         private PrintWriter out;
         private Socket playerSocket;
         private final String name;
-        private boolean currentPlayer;
 
+        // CONSTRUCTOR
         private ClientConnection(Socket playerSocket, String name) {
 
             this.playerSocket = playerSocket;
@@ -152,10 +150,11 @@ public class Server {
 
             } catch (IOException e) {
                 System.out.println("Unable to establish a connection to client.");
-
+                System.exit(0);
             }
         }
 
+        //CLOSE ALL THE STREAMS AND SOCKETS
         public void close() {
             try {
                 playerSocket.close();
@@ -169,17 +168,18 @@ public class Server {
 
         @Override
         public void run() {
+
             String guess;
             try {
                 while ((guess = in.readLine()) != null) {
 
                     sendAll(guess);
 
-                    if (game.check(guess)) {
+                    if (game.check(guess.toLowerCase())) {
                         sendAll("Detective " + name + " WINS THE GAME\n");
                         win();
                     } else {
-                        sendAll("Detective " + name + " failed! Next!\n");
+                        sendAll("Detective " + name + "'s capabilities are cold today! Next detective, help!\n");
                     }
 
                     next();
@@ -192,28 +192,24 @@ public class Server {
             }
         }
 
-
+        // SEND MESSAGE FOR THE PLAYER CONNECT WITH THIS SOCKET
         private void send(String message) {
             out.println(message);
             out.flush();
         }
     }
 
-    private class ConnectionChecker implements Runnable{
+    private class UnblockingThread implements Runnable {
 
         @Override
         public void run() {
             while (true) {
                 synchronized (LOCK) {
                     for (ClientConnection cc : clientConnections) {
-                        if (cc.playerSocket.isClosed() && cc.currentPlayer) {
-                            clientConnections.remove(cc);
-                            next();
-                            counter--;
-                            continue;
-                        }
                         if (cc.playerSocket.isClosed()) {
                             clientConnections.remove(cc);
+                            counter--;
+                            next();
                         }
                     }
                 }

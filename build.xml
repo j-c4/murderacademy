@@ -1,13 +1,14 @@
 <?xml version="1.0" ?>
-<project name="ServerMurderAcademy" default="jarfile">
+<project name="murderacademy" default="jarfile">
 
     <!-- Initialize build properties  -->
     <target name="init" description="Initializes properties">
-        <property name="project.name" value="ServerMurderAcademy" />
-        <property name="src.dir" value="src" />
-        <property name="main.class" value="org.academiadecodigo.loopeytunes.Server" />
+        <property name="project.name" value="murderacademy" />
+        <property name="src.dir" value="Server/src" />
+        <property name="main.class" value="Server/src/org/academiadecodigo/loopeytunes/Server/Server" />
         <property name="build.dir" value="build" />
         <property name="classes.dir" value="${build.dir}/classes" />
+        <property name="resources.dir" value="Server/resources"/>
 
     </target>
 
@@ -33,6 +34,9 @@
             <manifest>
                 <attribute name="Main-Class" value="${main.class}" />
             </manifest>
+            <fileset dir = "./Server">
+                <include name="**/${resources.dir}/**"/>
+            </fileset>
         </jar>
     </target>
 </project>

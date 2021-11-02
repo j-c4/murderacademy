@@ -11,13 +11,31 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Player {
-
     private Socket playerSocket;
     private String name;
     private BufferedReader in;
     private PrintWriter out;
     private Prompt terminalPrompt;
 
+    public static void main(String[] args) {
+
+        if (args.length != 1) {
+            System.out.println("YOU NEED TO PUT THE SERVER IP ADDRESS AS ARGUMENT WHEN YOU RUN THE JAR FILE\n");
+            return;
+        }
+
+        Player player = new Player(args[0], 9001);
+
+        try {
+            player.playing();
+        } catch (IOException e) {
+            System.out.println("Server was abruptly shut down.");
+            System.exit(0);
+        }
+
+    }
+
+    // CONSTRUCTOR
     public Player(String serverIP, int serverPort) {
 
         try {
@@ -35,33 +53,16 @@ public class Player {
         }
     }
 
-    public static void main(String[] args) {
-/**
-        if (!(args.length==1)) {
-            System.out.println("YOU NEED TO PUT THE SERVER IP ADDRESS AS ARGUMENT WHEN YOU RUN THE JAR FILE\n");
-            return;
-        }
-*/
-        Player player = new Player("127.0.0.1", 9001);
-
-        try {
-            player.playing();
-        } catch (IOException e) {
-            System.out.println("Server was abruptly shut down.");
-            System.exit(1);
-        }
-
-    }
-
+    // WHILE THE GAME IS NOT FINISHED, PLAYER LISTENS AND TRIES TO GUESS
     public void playing() throws IOException {
 
         StringInputScanner askName = new StringInputScanner();
-        askName.setMessage("What is your name?");
+        askName.setMessage("Thank you for your help Detective. What should I call you?");
         name = terminalPrompt.getUserInput(askName);
 
         out.println(name);
         out.flush();
-        String message = "";
+        String message;
 
         while ((message = in.readLine()) != null) {
 
@@ -80,10 +81,11 @@ public class Player {
         }
     }
 
+    // WHEN IT IS THE PLAYER'S TURN HE TRIES TO GUESS
     public void guess() {
         String[] culpritOptions = {"SID", "PRIS", "VANDO", "PEDRO", "MIGUEL"};
-        String[] weaponOptions = {"SKATE", "KEYBOARD", "PUFF", "FIRST MASTER CODER EXCALIBUR", "MEGAPHONE"};
-        String[] murderSceneOptions = {"BATHROOM", "GAMINGROOM", "MCROOM", "CLASSROOM", "GRASS"};
+        String[] weaponOptions = {"SKATEBOARD", "KEYBOARD", "PUFF", "FIRST MASTER CODER EXCALIBUR", "MEGAPHONE"};
+        String[] murderSceneOptions = {"BATHROOM", "GAMINGROOM", "MASTER CODERS' ROOM", "CLASSROOM", "GRASS"};
 
         MenuInputScanner culprits = new MenuInputScanner(culpritOptions);
         MenuInputScanner weapons = new MenuInputScanner(weaponOptions);
@@ -97,7 +99,7 @@ public class Player {
         int choice2 = terminalPrompt.getUserInput(weapons);
         int choice3 = terminalPrompt.getUserInput(murderScenes);
 
-        String playerGuess = "--->" + "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with a " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
+        String playerGuess = "---> " + "Detective " + name + " thinks " + culpritOptions[choice1 - 1] + " killed the code cadet with a " + weaponOptions[choice2 - 1] + " in the " + murderSceneOptions[choice3 - 1];
         out.println(playerGuess);
         out.flush();
 
