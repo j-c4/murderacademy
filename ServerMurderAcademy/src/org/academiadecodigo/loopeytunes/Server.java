@@ -58,7 +58,7 @@ public class Server {
             }
         }
 
-        sendStory();
+        //sendStory();
         game = new Game();
         sendAll("Game is on!\n");
         threadPool.submit(new UnblockingThread());
@@ -175,10 +175,17 @@ public class Server {
 
                     sendAll(guess);
 
-                    if (game.check(guess.toLowerCase())) {
+                    if (game.check(guess.toLowerCase()) == 3) {
                         sendAll("Detective " + name + " WINS THE GAME\n");
                         win();
-                    } else {
+                    }
+                    if (game.check(guess.toLowerCase()) == 2) {
+                        sendAll("Detective " + name + " feels that the case is about to be solved!\n");
+                    }
+                    if (game.check(guess.toLowerCase()) == 1) {
+                        sendAll("Detective " + name + " has a hunch on one of the hints...\n");
+                    }
+                    else {
                         sendAll("Detective " + name + "'s capabilities are cold today! Next detective, help!\n");
                     }
 
