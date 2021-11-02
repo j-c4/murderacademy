@@ -48,8 +48,18 @@ public class Game {
     }
 
     // SEE IF THE GUESS OF THE PLAYER IS RIGHT
-    public boolean check(String answer) {
-        return (answer.contains(culprit.getName().toLowerCase()) && answer.contains(weapon.getWeapon().toLowerCase()) && answer.contains(murderScene.getMurderScene().toLowerCase()));
+    public int check(String answer) {
+        int guesses = 0;
+        if (answer.contains(culprit.getName().toLowerCase())) {
+            guesses++;
+        }
+        if (answer.contains(weapon.getWeapon().toLowerCase())) {
+            guesses++;
+        }
+        if (answer.contains(murderScene.getMurderScene().toLowerCase())) {
+            guesses++;
+        }
+        return guesses;
     }
 
     //UTILITY CLASSES

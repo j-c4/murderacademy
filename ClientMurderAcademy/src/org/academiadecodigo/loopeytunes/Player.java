@@ -18,13 +18,13 @@ public class Player {
     private Prompt terminalPrompt;
 
     public static void main(String[] args) {
-
+/**
         if (args.length != 1) {
             System.out.println("YOU NEED TO PUT THE SERVER IP ADDRESS AS ARGUMENT WHEN YOU RUN THE JAR FILE\n");
             return;
         }
-
-        Player player = new Player(args[0], 9001);
+*/
+        Player player = new Player("127.0.0.1", 9001);
 
         try {
             player.playing();
@@ -85,7 +85,7 @@ public class Player {
     public void guess() {
         String[] culpritOptions = {"SID", "PRIS", "VANDO", "PEDRO", "MIGUEL"};
         String[] weaponOptions = {"SKATEBOARD", "KEYBOARD", "PUFF", "FIRST MASTER CODER EXCALIBUR", "MEGAPHONE"};
-        String[] murderSceneOptions = {"BATHROOM", "GAMINGROOM", "MASTER CODERS' ROOM", "CLASSROOM", "GRASS"};
+        String[] murderSceneOptions = {"BATHROOM", "GAMING ROOM", "MASTER CODERS' ROOM", "CLASSROOM", "GRASS"};
 
         MenuInputScanner culprits = new MenuInputScanner(culpritOptions);
         MenuInputScanner weapons = new MenuInputScanner(weaponOptions);
