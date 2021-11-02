@@ -116,7 +116,7 @@ public class Game {
     private enum MurderScene {
 
         BATHROOM("bathroom", new Hints[]{Hints.HINT_M1}),
-        GAMINGROOM("gaming room", new Hints[]{Hints.HINT_M1, Hints.HINT_M2}),
+        GAMINGROOM("GamingRoom", new Hints[]{Hints.HINT_M1, Hints.HINT_M2}),
         MCROOM("Master Coders' room", new Hints[]{Hints.HINT_M3}),
         CLASSROOM("classroom", new Hints[]{Hints.HINT_M2, Hints.HINT_M3}),
         GRASS("grass", new Hints[]{Hints.HINT_M1, Hints.HINT_M2});

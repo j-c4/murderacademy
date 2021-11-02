@@ -208,7 +208,7 @@ public class Server {
                     for (ClientConnection cc : clientConnections) {
                         if (cc.playerSocket.isClosed()) {
                             clientConnections.remove(cc);
-                            counter--;
+                            counter = 0;
                             next();
                         }
                     }
